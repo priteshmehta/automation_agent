@@ -1,0 +1,11 @@
+test_case_name: "Login and Click Voice"
+description: "Demo Test to automat login workflow"
+url: https://z3npm-social.zendesk.com
+
+setup: login
+  
+steps:
+  - goal: Navigate to https://z3npm-social.zendesk.com/agent/home
+  - goal: take screenshot and verify Voice call icon image on top right right of screen
+
+cleanup: logout
