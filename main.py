@@ -4,6 +4,7 @@ import base64
 from playwright.async_api import async_playwright
 from openai import AsyncOpenAI
 import os
+import sys
 import time
 from tool_executor import TOOL_SCHEMAS, ToolExecutor
 from workflow_loader import WorkflowLoader
@@ -13,7 +14,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Set your OpenAI API key
-client = AsyncOpenAI(base_url=os.getenv("BASE_URL"), api_key=os.getenv("OPENAI_API_KEY"))
+if os.getenv("BASE_URL") != "":
+    client = AsyncOpenAI(base_url=os.getenv("BASE_URL"), api_key=os.getenv("OPENAI_API_KEY"))
+else:
+    client = AsyncOpenAI()
 
 async def extract_visible_dom(page):
     elements = await page.query_selector_all("button, a, input, span, div")
@@ -153,11 +157,7 @@ async def main():
     verify = workflow.get("verify", "")
     setup = workflow.get("setup", "")
     cleanup = workflow.get("cleanup", "")
-    # print("\n[Setup]\n", setup)
-    # print("\n[Cleanup]\n", cleanup)
-    # print("\n[Steps]\n", steps)
-    # print("\n[Verify]\n", verify)
-
+    
     setup_goals = loader.get_goals(setup)
     #print("\n[GOALS]\n", goals)
 
