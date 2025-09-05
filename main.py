@@ -1,6 +1,7 @@
 import asyncio
 import json
 import base64
+import config
 from playwright.async_api import async_playwright
 from openai import AsyncOpenAI
 import os
@@ -116,9 +117,9 @@ async def try_to_click_based_on_hint(page, locator):
         return False
 
 async def run_agentic_workflow(page, workflow_path):
-    variables = {
-        "username": os.getenv("USER_NAME"),
-        "password": os.getenv("USER_PASSWORD")
+     variables = {
+        "username": config.USER_NAME,   # Use config.py values
+        "password": config.USER_PASSWORD
     }
     loader = WorkflowLoader(workflow_path, variables=variables)
     workflow = loader.load_combined_workflow()

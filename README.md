@@ -7,14 +7,16 @@
  ## To Run
  
  ```
+ mv .env.example .env
+ set 'OPENAI_API_KEY' to .env file
  ./setup.sh 
- python main.py   
+ python main.py 
  ```
- 
+
  ```mermaid 
 flowchart TB
     %% Define Layers
-    subgraph L1[User Layer]
+    subgraph L1[User]
         SC["High Level Scenario(YAML)"]
         CFG["Config(YAML)"]
     end
@@ -25,7 +27,7 @@ flowchart TB
         MCP["Browser MCP Server"]
     end
 
-    subgraph L3[System Under Test Layer]
+    subgraph L3[System Under Test]
         B[Browser]
     end
 
