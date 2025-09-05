@@ -38,39 +38,6 @@ async def extract_visible_dom(page):
             continue
     return visible_elements
 
-# async def get_gpt_suggestion(goal_text, dom_elements):
-#     system_prompt = (
-#         """
-#         You are a smart and reliable web automation agent.
-#         Your task is to help a browser automation script identify the correct HTML element to interact with, based on a user's goal and a list of visible DOM elements.
-
-#         Use the following information:
-#         - The user **goal** (what they are trying to do)
-#         - A list of **visible DOM elements** (including tag, text content, and a preview of the outer HTML)
-#         - Any **locator hint** provided in the goal
-
-#         Return a **unique and robust CSS or XPath locator string** that can be used with **Playwright** to find and interact with the element.
-
-#         Output only the best locator string with format "locator_type|locator_string", preferring **CSS selectors** when possible. The locator should be reliable across sessions and specific enough to uniquely identify the intended element.
-#     """
-#     )
-     
-#     user_prompt = (
-#         f"Goal: {goal_text}\n"
-#         f"DOM Elements:\n{json.dumps(dom_elements, indent=2)}\n"
-#         "Which element should be clicked or typed into to achieve the goal? Return its text or tag and a hint for finding it."
-#     )
-#     #print("\n[GPT TEXTUAL SUGGESTION PROMPT]\n", user_prompt)
-#     response = await client.chat.completions.create(
-#         model="gpt-4o",
-#         messages=[
-#             {"role": "system", "content": system_prompt},
-#             {"role": "user", "content": user_prompt}
-#         ],
-#         temperature=0.4
-#     )
-#     return response.choices[0].message.content.strip()
-
 async def get_gpt_locator(dom_elements, gpt_hint):
     system_prompt = (
         """
@@ -148,48 +115,6 @@ async def try_to_click_based_on_hint(page, locator):
         print("Failed to click using locator:", e)
         return False
 
-async def main():
-    cwd = os.path.dirname(os.path.abspath(__file__))
-    workflow_path = os.path.join(cwd, "workflows", "test_case_login_voice.yaml")
-    loader = WorkflowLoader(workflow_path)
-    workflow = loader.load_combined_workflow()
-    steps = workflow.get("steps", "")
-    verify = workflow.get("verify", "")
-    setup = workflow.get("setup", "")
-    cleanup = workflow.get("cleanup", "")
-    
-    setup_goals = loader.get_goals(setup)
-    #print("\n[GOALS]\n", goals)
-
-    url = "https://z3npm-social.zendesk.com"
-
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)
-        context = await browser.new_context()
-        page = await context.new_page()
-
-        await page.goto(url)
-        await page.wait_for_timeout(4000)
-
-        dom = await extract_visible_dom(page)
-        print("\n[DOM PARSE COMPLETE]\n")
-
-        setup_goals = loader.get_goals(setup)    
-        print("\n[SETUP GOALS]\n", setup_goals)
-        for goal in setup_goals[:2]:
-            locator = await get_gpt_locator(dom, goal)
-            print("\n[GPT LOCATOR:]\n", locator)
-            print("waiting for 2 seconds before clicking...")
-            await try_to_click_based_on_hint(page, locator)
-            time.sleep(2)
-            #vision_suggestion = await capture_and_analyze_screenshot(page, goal)
-            #print("\n[GPT VISION SUGGESTION:]\n", vision_suggestion)
-            #print("waiting for 2 seconds before moving to next goal...")
-            dom = await extract_visible_dom(page)
-            time.sleep(2)
-
-    #     await browser.close()
-
 async def run_agentic_workflow(page, workflow_path):
     variables = {
         "username": os.getenv("USER_NAME"),
@@ -231,7 +156,7 @@ async def run_agentic_workflow(page, workflow_path):
                 print(f"[ERROR] No handler for tool '{tool_name}'")
 
 
-async def agentic_main():
+async def main():
     cwd = os.path.dirname(os.path.abspath(__file__))
     workflow_path = os.path.join(cwd, "workflows", "test_case_login_voice.yaml")
     
@@ -245,5 +170,4 @@ async def agentic_main():
         await browser.close()
 
 if __name__ == "__main__":
-    #asyncio.run(main())
-    asyncio.run(agentic_main())
+    asyncio.run(main())

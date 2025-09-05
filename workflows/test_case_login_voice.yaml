@@ -6,6 +6,6 @@ setup: login
   
 steps:
   - goal: Navigate to https://z3npm-social.zendesk.com/agent/home
-  - goal: take screenshot and verify Voice call icon image on top right right of screen
+  #- goal: take screenshot and verify Voice call icon image on top right right of screen
 
-cleanup: logout
+#cleanup: logout

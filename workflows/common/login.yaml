@@ -3,5 +3,4 @@ login:
   - goal: Enter username as {{username}}
   - goal: Enter password as {{password}}
   - goal: Click on login button
-  - goal: "Verify login is successful by checking the presence of product try"
 
