@@ -2,6 +2,7 @@ import asyncio
 import json
 import base64
 import config
+from llm_client import LlmClientFactory
 from playwright.async_api import async_playwright
 from openai import AsyncOpenAI
 import os
@@ -13,13 +14,15 @@ from dotenv import load_dotenv
 from prompts import get_gpt_locator_system_prompt, get_vision_system_prompt
 
 # Load environment variables from .env file
-load_dotenv()
+#load_dotenv()
 
-# Set your OpenAI API key
-if os.getenv("BASE_URL") != "":
-    client = AsyncOpenAI(base_url=os.getenv("BASE_URL"), api_key=os.getenv("OPENAI_API_KEY"))
-else:
-    client = AsyncOpenAI()
+client = LlmClientFactory.create(config)
+
+# # Set your OpenAI API key
+# if os.getenv("BASE_URL") != "":
+#     client = AsyncOpenAI(base_url=os.getenv("BASE_URL"), api_key=os.getenv("OPENAI_API_KEY"))
+# else:
+#     client = AsyncOpenAI()
 
 async def extract_visible_dom(page):
     elements = await page.query_selector_all("button, a, input, span, div")
@@ -47,7 +50,7 @@ async def get_gpt_locator(dom_elements, gpt_hint):
         "CSS is preferred if return xpath locator if CSS locator doesn't is not possible."
     )
     #print("\n[GPT TEXTUAL SUGGESTION PROMPT]\n", user_prompt)
-    response = await client.chat.completions.create(
+    response = await client.chat(
         model=config.LLM_MODEL,
         messages=[
             {"role": "system", "content": get_gpt_locator_system_prompt},
@@ -58,7 +61,9 @@ async def get_gpt_locator(dom_elements, gpt_hint):
     return response.choices[0].message.content.strip()
 
 async def capture_and_analyze_screenshot(page, goal_text):
-    path = "page_screenshot.png"
+    screenshot_dir = config.SCREENSHOT_DIR if hasattr(config, "SCREENSHOT_DIR") else "screenshots"
+    os.makedirs(screenshot_dir, exist_ok=True)
+    path = os.path.join(screenshot_dir, f"page_screenshot_{int(time.time())}.png")
     await page.screenshot(path=path, full_page=True)
 
     vision_prompt = get_vision_system_prompt(goal_text)
@@ -66,8 +71,8 @@ async def capture_and_analyze_screenshot(page, goal_text):
     with open(path, "rb") as f:
         image_data = base64.b64encode(f.read()).decode("utf-8")
 
-    response = await client.chat.completions.create(
-        model="gpt-4o",
+    response = await client.chat(
+        model=config.LLM_MODEL,
         messages=[
             {"role": "system", "content": "You are a helpful visual assistant that can analyze webpage screenshots."},
             {"role": "user", "content": [
@@ -75,7 +80,7 @@ async def capture_and_analyze_screenshot(page, goal_text):
                 {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image_data}"}}
             ]}
         ],
-        temperature=0.4
+        temperature=config.LLM_MODEL_TEMPERATURE
     )
     return response.choices[0].message.content.strip()
 
@@ -119,7 +124,7 @@ async def run_agentic_workflow(page, workflow_path):
             print(f"\n[{phase.upper()} STEP] Goal: {goal}\n")
             dom = await extract_visible_dom(page)
 
-            response = await client.chat.completions.create(
+            response = await client.chat(
                 model=config.LLM_MODEL,
                 tools=TOOL_SCHEMAS,
                 tool_choice="auto",
