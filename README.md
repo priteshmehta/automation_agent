@@ -1,9 +1,3 @@
-```
-[YAML Intent] --> [Goal Parser] --> [Action Planner (LLM)] --> [Playwright Agent]
-                                               ↓
-                                  [DOM Scraper + Element Ranker]
-
- ```
  ## To Run
  
  ```
@@ -42,3 +36,10 @@ flowchart TB
     CE -->|"Output"| TestResult
 ```
 
+### Website to Practice UI Automation 
+- https://www.saucedemo.com
+- https://the-internet.herokuapp.com
+- https://practice-automation.com
+- http://www.uitestingplayground.com
+- https://qa-practice.netlify.app
+- https://weathershopper.pythonanywhere.com

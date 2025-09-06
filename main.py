@@ -10,6 +10,7 @@ import time
 from tool_executor import TOOL_SCHEMAS, ToolExecutor
 from workflow_loader import WorkflowLoader
 from dotenv import load_dotenv      
+from prompts import get_gpt_locator_system_prompt, get_vision_system_prompt
 
 # Load environment variables from .env file
 load_dotenv()
@@ -40,21 +41,6 @@ async def extract_visible_dom(page):
     return visible_elements
 
 async def get_gpt_locator(dom_elements, gpt_hint):
-    system_prompt = (
-        """
-        You are a smart and reliable web automation agent.
-        Your task is to help a browser automation script identify the correct HTML element to interact with, based on a user's goal and a list of visible DOM elements.
-
-        Use the following information:
-        - The user **goal** (what they are trying to do)
-        - A list of **visible DOM elements** (including tag, text content, and a preview of the outer HTML)
-        - Any **locator hint** provided in the goal
-
-        Return a **unique and robust CSS or XPath locator string** that can be used with **Playwright** to find and interact with the element.
-
-        Output only the best locator string with format "locator_type|locator_string", preferring **CSS selectors** when possible. The locator should be reliable across sessions and specific enough to uniquely identify the intended element.
-    """
-    )
     user_prompt = (
         f"Locator hint: {gpt_hint}\n"
         f"DOM Elements:\n{json.dumps(dom_elements, indent=2)}\n"
@@ -62,12 +48,12 @@ async def get_gpt_locator(dom_elements, gpt_hint):
     )
     #print("\n[GPT TEXTUAL SUGGESTION PROMPT]\n", user_prompt)
     response = await client.chat.completions.create(
-        model="gpt-4o",
+        model=config.LLM_MODEL,
         messages=[
-            {"role": "system", "content": system_prompt},
+            {"role": "system", "content": get_gpt_locator_system_prompt},
             {"role": "user", "content": user_prompt}
         ],
-        temperature=0.4
+        temperature=config.LLM_MODEL_TEMPERATURE
     )
     return response.choices[0].message.content.strip()
 
@@ -75,9 +61,7 @@ async def capture_and_analyze_screenshot(page, goal_text):
     path = "page_screenshot.png"
     await page.screenshot(path=path, full_page=True)
 
-    vision_prompt = (
-        f"Here is a screenshot of a webpage. Act like human, Based on the user goal: '{goal_text}' check if it matches and return result as true or flast with one line reasoning with format true/flase|reasoning."
-    )
+    vision_prompt = get_vision_system_prompt(goal_text)
 
     with open(path, "rb") as f:
         image_data = base64.b64encode(f.read()).decode("utf-8")
@@ -117,26 +101,26 @@ async def try_to_click_based_on_hint(page, locator):
         return False
 
 async def run_agentic_workflow(page, workflow_path):
-     variables = {
-        "username": config.USER_NAME,   # Use config.py values
+    variables = {
+        "username": config.USER_NAME,  
         "password": config.USER_PASSWORD
     }
     loader = WorkflowLoader(workflow_path, variables=variables)
     workflow = loader.load_combined_workflow()
-    await page.goto(workflow["url"])
-    await page.wait_for_timeout(4000)
+    await page.goto(config.APP_URL)
+    await page.wait_for_timeout(2000)
 
     executor = ToolExecutor(page)
 
     for phase in ["setup", "steps", "cleanup"]:
         for step in workflow.get(phase, []):
-            time.sleep(5)
+            time.sleep(3)
             goal = step["goal"] if isinstance(step, dict) else step
             print(f"\n[{phase.upper()} STEP] Goal: {goal}\n")
             dom = await extract_visible_dom(page)
 
             response = await client.chat.completions.create(
-                model="gpt-4o",
+                model=config.LLM_MODEL,
                 tools=TOOL_SCHEMAS,
                 tool_choice="auto",
                 messages=[

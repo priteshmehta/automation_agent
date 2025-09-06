@@ -1,5 +1,4 @@
 login:
-  - goal: "Open login page by clicking on sign in link"
   - goal: Enter username as {{username}}
   - goal: Enter password as {{password}}
   - goal: Click on login button
