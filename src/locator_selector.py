@@ -31,7 +31,7 @@ class LocatorSelector:
         return visible_elements
 
     async def capture_and_analyze_screenshot(self, page, goal_text):
-        screenshot_dir = config.SCREENSHOT_DIR if hasattr(config, "SCREENSHOT_DIR") else "screenshots"
+        screenshot_dir = getattr(config, "SCREENSHOT_DIR", "screenshots")
         os.makedirs(screenshot_dir, exist_ok=True)
         path = os.path.join(screenshot_dir, f"page_screenshot_{int(time.time())}.png")
         await page.screenshot(path=path, full_page=True)

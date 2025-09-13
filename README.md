@@ -1,13 +1,13 @@
- ## To Run
- 
- ```
- mv .env.example .env
- set 'OPENAI_API_KEY' to .env file
- ./setup.sh 
- python main.py 
- ```
+## To Run
 
- ```mermaid 
+```
+mv .env.example .env
+set 'OPENAI_API_KEY' to .env file
+./setup.sh 
+python src/main.py 
+```
+
+```mermaid 
 flowchart TB
     %% Define Layers
     subgraph L1[User]

@@ -1,10 +1,11 @@
 class ToolExecutor:
-    def __init__(self, page):
+    def __init__(self, page, logger):
         self.page = page
+        self.logger = logger
 
     async def click(self, locator):
         try:
-            print(f"[TOOL] Clicking: {locator}")
+            self.logger.log(f"[TOOL] Clicking: {locator}")
             el = await self.page.wait_for_selector(locator, timeout=5000)
             await el.evaluate("el => el.style.outline = '3px solid red'")
             await self.page.wait_for_timeout(1500)
@@ -15,7 +16,7 @@ class ToolExecutor:
 
     async def type(self, locator, text):
         try:
-            print(f"[TOOL] Typing into: {locator} text='{text}'")
+            self.logger.log(f"[TOOL] Typing into: {locator} text='{text}'")
             el = await self.page.wait_for_selector(locator, timeout=5000)
             await el.click()
             await el.type(text)
@@ -25,7 +26,7 @@ class ToolExecutor:
 
     async def wait_for(self, locator):
         try:
-            print(f"[TOOL] Waiting for: {locator}")
+            self.logger.log(f"[TOOL] Waiting for: {locator}")
             await self.page.wait_for_selector(locator, timeout=5000)
             return {"status": "success"}
         except Exception as e:
@@ -33,7 +34,7 @@ class ToolExecutor:
         
     async def navigate_to(self, url):
         try:
-            print(f"[TOOL] Navigating to: {url}")
+            self.logger.log(f"[TOOL] Navigating to: {url}")
             await self.page.goto(url)
             await self.page.wait_for_timeout(2000)
             return {"status": "success"}
@@ -42,7 +43,7 @@ class ToolExecutor:
 
     async def take_screenshot(self, filename):
         try:
-            print(f"[TOOL] Taking screenshot: {filename}")
+            self.logger.log(f"[TOOL] Taking screenshot: {filename}")
             await self.page.screenshot(path=filename, full_page=True)
             return {"status": "success", "file": filename}
         except Exception as e:
@@ -50,7 +51,7 @@ class ToolExecutor:
 
     async def get_text(self, locator):
         try:
-            print(f"[TOOL] Getting text from: {locator}")
+            self.logger.log(f"[TOOL] Getting text from: {locator}")
             el = await self.page.wait_for_selector(locator, timeout=5000)
             text = await el.inner_text()
             return {"status": "success", "text": text}
@@ -59,7 +60,7 @@ class ToolExecutor:
 
     async def get_attribute(self, locator, attribute):
         try:
-            print(f"[TOOL] Getting attribute '{attribute}' from: {locator}")
+            self.logger.log(f"[TOOL] Getting attribute '{attribute}' from: {locator}")
             el = await self.page.wait_for_selector(locator, timeout=5000)
             value = await el.get_attribute(attribute)
             return {"status": "success", "attribute": attribute, "value": value}
@@ -68,7 +69,7 @@ class ToolExecutor:
 
     async def check_visible(self, locator):
         try:
-            print(f"[TOOL] Checking visibility for: {locator}")
+            self.logger.log(f"[TOOL] Checking visibility for: {locator}")
             el = await self.page.wait_for_selector(locator, timeout=5000)
             visible = await el.is_visible()
             return {"status": "success", "visible": visible}
@@ -77,7 +78,7 @@ class ToolExecutor:
 
     async def check_enabled(self, locator):
         try:
-            print(f"[TOOL] Checking enabled for: {locator}")
+            self.logger.log(f"[TOOL] Checking enabled for: {locator}")
             el = await self.page.wait_for_selector(locator, timeout=5000)
             enabled = await el.is_enabled()
             return {"status": "success", "enabled": enabled}
@@ -86,7 +87,7 @@ class ToolExecutor:
 
     async def reload(self):
         try:
-            print(f"[TOOL] Reloading page")
+            self.logger.log(f"[TOOL] Reloading page")
             await self.page.reload()
             await self.page.wait_for_timeout(1000)
             return {"status": "success"}
