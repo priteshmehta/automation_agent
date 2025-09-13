@@ -1,6 +1,6 @@
 test_case_name: "Login and Click Voice"
 description: "Demo Test to automat login workflow"
-url: https://z3npm-social.zendesk.com
+
 
 setup: login
 

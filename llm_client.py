@@ -42,7 +42,3 @@ class LlmClientFactory:
         else:
             raise ValueError(f"Unsupported LLM_PROVIDER: {provider}")
 
-# Usage in main.py:
-# from llm_client import LlmClientFactory
-# import config
-# client = LlmClientFactory.create(config)

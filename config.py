@@ -11,3 +11,5 @@ SCREENSHOT_DIR="screenshots"
 LLM_PROVIDER="openai"  # or "local" for local models
 OPENAI_API_KEY=os.getenv("OPENAI_API_KEY")
 BASE_URL="https://api.openai.com/v1"
+LOG_LEVEL="INFO"
+LOG_DIR="log"
