@@ -4,7 +4,11 @@
 mv .env.example .env
 set 'OPENAI_API_KEY' to .env file
 ./setup.sh 
+# Sample example to Intrgrate as a python package
 python src/main.py 
+
+# To run as command line tool
+python src/web_captain.py --workflows workflows
 ```
 
 ```mermaid 
