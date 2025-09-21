@@ -1,13 +1,12 @@
 import time
 import json
-import config
 from src.locator_selector import LocatorSelector
 from src.tool_executor import TOOL_SCHEMAS, ToolExecutor
 from src.workflow_loader import WorkflowLoader
 from src.logger import JsonLogger
 
 class WorkflowRunner:
-    def __init__(self, client, logger = None):
+    def __init__(self, client, config, logger = None):
         self.client = client
         self.config = config
         self.dom_locator = LocatorSelector(client, self.config)
@@ -27,7 +26,7 @@ class WorkflowRunner:
 
         for phase in ["setup", "steps", "cleanup"]:
             for step in workflow.get(phase, []):
-                time.sleep(3)
+                time.sleep(2)
                 goal = step["goal"] if isinstance(step, dict) else step
                 self.logger.log(f"[{phase.upper()} STEP] Goal: {goal}\n")
                 dom = await self.dom_locator.extract_visible_dom(page)

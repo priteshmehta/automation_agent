@@ -24,7 +24,7 @@ class OpenAiClient(LlmClient):
             **kwargs
         )
         duration = time.time() - start
-        self.logger.log(f"{duration:.2f} seconds", "[chatGPT TIMING]")
+        self.logger.log(f"{duration:.2f}s", "[chatGPT TIMING]")
         return response
 
 class LocalModelClient(LlmClient):

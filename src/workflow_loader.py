@@ -1,6 +1,5 @@
 import os
 import yaml
-import json
 from jinja2 import Template
 
 class WorkflowLoader:

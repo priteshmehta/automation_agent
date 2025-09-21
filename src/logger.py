@@ -5,7 +5,7 @@ import os
 import config
 
 class JsonLogger:
-    def __init__(self, log_name="web_agent"):
+    def __init__(self, log_name="web_agent", console=True):
         log_dir = getattr(config, "LOG_DIR", "logs")
         os.makedirs(log_dir, exist_ok=True)
         log_path = os.path.join(log_dir, f"{log_name}_{int(time.time())}.log")
@@ -19,6 +19,11 @@ class JsonLogger:
         fh.setFormatter(formatter)
         if not self.logger.hasHandlers():
             self.logger.addHandler(fh)
+        if console:
+            ch = logging.StreamHandler()
+            ch.setLevel(level)
+            ch.setFormatter(formatter)
+            self.logger.addHandler(ch)
 
     def log(self, data, prefix="web_agent"):
         log_entry = {"prefix": prefix, "data": data}

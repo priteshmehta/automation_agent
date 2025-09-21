@@ -1,3 +1,6 @@
+import src.config
+import os
+
 class ToolExecutor:
     def __init__(self, page, logger):
         self.page = page
@@ -43,6 +46,9 @@ class ToolExecutor:
 
     async def take_screenshot(self, filename):
         try:
+            screenshot_dir = getattr(src.config, "SCREENSHOT_DIR", "screenshots")
+            os.makedirs(screenshot_dir, exist_ok=True)
+            filename = os.path.join(screenshot_dir, filename)
             self.logger.log(f"[TOOL] Taking screenshot: {filename}")
             await self.page.screenshot(path=filename, full_page=True)
             return {"status": "success", "file": filename}

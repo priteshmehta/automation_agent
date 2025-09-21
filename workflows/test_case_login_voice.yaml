@@ -1,6 +1,5 @@
-test_case_name: "Login and Click Voice"
-description: "Demo Test to automat login workflow"
-
+test_case_name: "Demo TEST "
+description: "Demo test to automate simple workflow"
 
 setup: login
 

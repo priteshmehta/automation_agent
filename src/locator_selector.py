@@ -7,9 +7,10 @@ import time
 from prompts import get_gpt_locator_system_prompt, get_vision_system_prompt
 
 class LocatorSelector:
-    def __init__(self, client, config):
+    def __init__(self, client, config, logger=None):
         self.client = client
         self.config = config
+        self.logger = logger
 
     async def extract_visible_dom(self, page):
         elements = await page.query_selector_all("button, a, input, span, div")
