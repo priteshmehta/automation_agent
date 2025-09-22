@@ -1,3 +1,6 @@
+## What is Web Captain?
+Web Captain is an AI-powered end-to-end workflow automation platform that streamlines Web Task including E2E test automation.
+
 ## To Run
 
 ```
